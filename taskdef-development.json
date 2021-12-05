@@ -1,0 +1,59 @@
+{
+  "executionRoleArn": "arn:aws:iam::____:role/ecs-task",
+  "containerDefinitions": [
+    {
+      "name": "diploma",
+      "image": "<IMAGE>",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5000,
+          "hostPort": 0,
+          "protocol": "tcp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "vlysakov-cloudwatch_group",
+          "awslogs-region": "eu-west-2",
+          "awslogs-stream-prefix": "vlysakov"
+        }
+      },
+      "environment": [],
+      "secrets": [
+        {
+          "name": "DATABASE_HOST",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:721033716810:secret:vlysakov-db-host-EuJIuF"
+        },
+        {
+          "name": "DATABASE_PORT",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:721033716810:secret:vlysakov-db-port-67kTru"
+        },
+        {
+          "name": "DATABASE_NAME",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:721033716810:secret:vlysakov-db-name-9UvPlQ"
+        },
+        {
+          "name": "DATABASE_USER",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:721033716810:secret:vlysakov-db-username-QuGW3H"
+        },
+        {
+          "name": "DATABASE_PASS",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:721033716810:secret:vlysakov-db-password-EuJIuF"
+        },
+        {
+          "name": "AWS_COGNITO_CLIENT_ID",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:721033716810:secret:vlysakov-cognito-client-ids-RaaKX1"
+        },
+        {
+          "name": "AWS_COGNITO_USER_POOL",
+          "valueFrom": "arn:aws:secretsmanager:eu-west-2:721033716810:secret:vlysakov-cognito-user-pool-CYXEqo"
+        }
+      ]
+    }
+  ],
+  "cpu": "256",
+  "memory": "400",
+  "family": "smart-energy-dev"
+}

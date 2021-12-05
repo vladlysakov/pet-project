@@ -1,0 +1,35 @@
+version: 0.2
+
+env:
+  secrets-manager:
+    DOCKER_USER: smart-energy-common-docker-user-secret-key
+    DOCKER_KEY_FILE_NAME: smart-energy-common-docker-file-name-secret-key
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - echo Logging in to Docker...
+      - aws s3 cp s3://smart-energy-common-docker-storage/$DOCKER_KEY_FILE_NAME $DOCKER_KEY_FILE_NAME
+      - docker login -u $DOCKER_USER --password-stdin < $DOCKER_KEY_FILE_NAME
+      - rm $DOCKER_KEY_FILE_NAME -f
+      - echo Docker version...
+      - docker version
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $PROJECT_NAME .
+      - docker tag $PROJECT_NAME:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$PROJECT_NAME:latest
+      - docker tag $PROJECT_NAME:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$PROJECT_NAME:$CODEBUILD_START_TIME
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$PROJECT_NAME:latest
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$PROJECT_NAME:$CODEBUILD_START_TIME
